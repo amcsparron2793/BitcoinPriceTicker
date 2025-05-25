@@ -43,8 +43,8 @@ class BitcoinPriceTicker:
             params: Optional API request parameters
             base_url: Optional base URL for the API
         """
-        self.params = params or self.DEFAULT_PARAMS
-        self.url = base_url or f"{self.BASE_URL}{self.ENDPOINT}"
+        self.params = params or BitcoinPriceTicker.DEFAULT_PARAMS
+        self.url = base_url or f"{BitcoinPriceTicker.BASE_URL}{BitcoinPriceTicker.ENDPOINT}"
 
     @property
     def formatted_price(self) -> str:
