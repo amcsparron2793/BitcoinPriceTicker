@@ -8,7 +8,7 @@ gets the current btc price from coindesk and parses the resulting json
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
 from requests import get as r_get
-
+from _version import __version__
 
 class BitcoinApiError(Exception):
     """Custom exception for Bitcoin API related errors"""
@@ -44,8 +44,12 @@ class BitcoinPriceTicker:
             params: Optional API request parameters
             base_url: Optional base URL for the API
         """
+        print(f"Initializing {self}")
         self.params = params or BitcoinPriceTicker.DEFAULT_PARAMS
         self.url = base_url or f"{BitcoinPriceTicker.BASE_URL}{BitcoinPriceTicker.ENDPOINT}"
+
+    def __str__(self):
+        return f'Bitcoin Price Ticker v{__version__}'
 
     @property
     def formatted_price(self) -> str:
@@ -132,6 +136,9 @@ class BitcoinPriceTicker:
 
         """
         last_checked: Optional[datetime] = None
+        print(f"Starting continuous check every "
+              f"{BitcoinPriceTicker.CONTINUOUS_CHECK_INTERVAL_SECONDS} "
+              f"seconds press Ctrl+C to exit.")
         while True:
             try:
                 if not self.should_update_continuous(last_checked):
