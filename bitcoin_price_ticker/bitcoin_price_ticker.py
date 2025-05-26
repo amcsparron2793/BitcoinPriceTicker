@@ -226,9 +226,19 @@ class BitcoinPriceTicker(BasePriceTicker):
         return f'Bitcoin Price Ticker v{__version__}'
 
 
+class EthereumPriceTicker(BasePriceTicker):
+    """A class to retrieve and process Ethereum price data from CoinDesk API."""
+    BasePriceTicker.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_ETH_USD})
+    INSTRUMENT_KEY = BasePriceTicker.KEY_ETH_USD
+    def __init__(self, params: Dict[str, str] = None, base_url: str = None) -> None:
+        super().__init__(params, base_url)
+        self.currency_shorthand = BasePriceTicker.KEY_ETH_USD.split('-')[0]
+    def __str__(self):
+        return f'Ethereum Price Ticker v{__version__}'
+
+
 if __name__ == '__main__':
-    btc_ticker = BitcoinPriceTicker()
-    btc_ticker.continuous_check()
-    #print(btc_ticker.formatted_price)
-    #info = btc_ticker.get_current_info()
-    #print(f"As of {info['pretty_est_time']} EST:\n\t1 BTC = {info['price_str']}")
+    #btc_ticker = BitcoinPriceTicker()
+    #btc_ticker.continuous_check()
+    eth_ticker = EthereumPriceTicker()
+    eth_ticker.continuous_check()
