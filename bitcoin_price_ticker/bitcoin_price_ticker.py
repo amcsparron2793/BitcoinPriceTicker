@@ -51,9 +51,17 @@ class BitcoinPriceTicker:
     def __str__(self):
         return f'Bitcoin Price Ticker v{__version__}'
 
+    @classmethod
+    def get_continuous_check_interval(cls) -> str:
+        """Returns a human-readable string of the check interval."""
+        if cls.CONTINUOUS_CHECK_INTERVAL_SECONDS > 60:
+            return f"{cls.CONTINUOUS_CHECK_INTERVAL_SECONDS // 60} minutes"
+        else:
+            return f"{cls.CONTINUOUS_CHECK_INTERVAL_SECONDS} seconds"
+
     @property
     def formatted_price(self) -> str:
-        """Returns a formatted string of current Bitcoin price."""
+        """Returns a formatted string of the current Bitcoin price."""
         price_info = self.fetch_current_price()
         return f"As of {price_info['pretty_est_time']} EST:\n\t1 BTC = {price_info['price_str']}"
 
@@ -137,8 +145,8 @@ class BitcoinPriceTicker:
         """
         last_checked: Optional[datetime] = None
         print(f"Starting continuous check every "
-              f"{BitcoinPriceTicker.CONTINUOUS_CHECK_INTERVAL_SECONDS} "
-              f"seconds press Ctrl+C to exit.")
+              f"{BitcoinPriceTicker.get_continuous_check_interval()} "
+              f"press Ctrl+C to exit.")
         while True:
             try:
                 if not self.should_update_continuous(last_checked):
