@@ -10,14 +10,11 @@ from datetime import datetime, timezone, timedelta
 from requests import get as r_get
 from _version import __version__
 
-class BitcoinApiError(Exception):
+class CoinDeskApiError(Exception):
     """Custom exception for Bitcoin API related errors"""
     pass
 
-
-class BitcoinPriceTicker:
-    """A class to retrieve and process Bitcoin price data from CoinDesk API."""
-
+class BasePriceTicker:
     BASE_URL: str = 'https://data-api.coindesk.com'
     ENDPOINT: str = '/index/cc/v1/latest/tick'
     EST_TIMEZONE_OFFSET: int = -4
@@ -25,19 +22,26 @@ class BitcoinPriceTicker:
     # API response keys
     KEY_DATA: str = 'Data'
     KEY_BTC_USD: str = 'BTC-USD'
+    KEY_ETH_USD: str = 'ETH-USD'
+    KEY_LTC_USD: str = 'LTC-USD'
+    KEY_XRP_USD: str = 'XRP-USD'
+
     KEY_VALUE: str = 'VALUE'
     KEY_TIMESTAMP: str = 'VALUE_LAST_UPDATE_TS'
 
-    DEFAULT_PARAMS: Dict[str, str] = {
-        "market": "cadli",
-        "instruments": "BTC-USD",
-        "apply_mapping": "true",
-        "groups": "VALUE"
-    }
     REQUIRED_PARAMS = [
         "market",
         "instruments"
     ]
+    DEFAULT_PARAMS: Dict[str, str] = {
+        "market": "cadli",
+        #"instruments": "BTC-USD",
+        "apply_mapping": "true",
+        "groups": "VALUE"
+    }
+
+    INSTRUMENT_KEY = None
+
     CONTINUOUS_CHECK_INTERVAL_SECONDS: int = 120
 
     def __init__(self, params: Dict[str, str] = None, base_url: str = None) -> None:
@@ -50,11 +54,9 @@ class BitcoinPriceTicker:
         """
         print(f"{'-'* 10} Initializing {self} {'-'* 10}")
         self._params = None
-        self.params = params or BitcoinPriceTicker.DEFAULT_PARAMS
-        self.url = base_url or f"{BitcoinPriceTicker.BASE_URL}{BitcoinPriceTicker.ENDPOINT}"
-
-    def __str__(self):
-        return f'Bitcoin Price Ticker v{__version__}'
+        self.params = params or BasePriceTicker.DEFAULT_PARAMS
+        self.url = base_url or f"{BasePriceTicker.BASE_URL}{BasePriceTicker.ENDPOINT}"
+        self.currency_shorthand = None
 
     @property
     def params(self):
@@ -65,10 +67,10 @@ class BitcoinPriceTicker:
         if not isinstance(value, dict):
             raise TypeError("Params must be a dictionary")
             # Check if all required parameters are present in the dictionary keys
-        if not all(param in value.keys() for param in BitcoinPriceTicker.REQUIRED_PARAMS):
+        if not all(param in value.keys() for param in BasePriceTicker.REQUIRED_PARAMS):
             raise ValueError(
             "Params must contain at least the following keys: "
-            f"{', '.join(BitcoinPriceTicker.REQUIRED_PARAMS)}"
+            f"{', '.join(BasePriceTicker.REQUIRED_PARAMS)}"
         )
         self._params = value
 
@@ -91,6 +93,13 @@ class BitcoinPriceTicker:
             return f"{minutes} minutes and {seconds} seconds"
         return f"{minutes} minutes"
 
+    @property
+    def formatted_price(self) -> str:
+        """Returns a formatted string of the current Bitcoin price."""
+        price_info = self.fetch_current_price()
+        return f"As of {price_info['pretty_est_time']} EST:\n\t1 {self.currency_shorthand} = {price_info['price_str']}"
+
+
     @classmethod
     def get_continuous_check_interval(cls) -> str:
         """Returns a human-readable string of the check interval."""
@@ -99,46 +108,14 @@ class BitcoinPriceTicker:
         else:
             return f"{cls.CONTINUOUS_CHECK_INTERVAL_SECONDS} seconds"
 
-    @property
-    def formatted_price(self) -> str:
-        """Returns a formatted string of the current Bitcoin price."""
-        price_info = self.fetch_current_price()
-        return f"As of {price_info['pretty_est_time']} EST:\n\t1 BTC = {price_info['price_str']}"
-
     def fetch_current_price(self) -> Dict[str, Any]:
         """Fetches and returns current Bitcoin price information."""
         response = r_get(self.url, params=self.params)
 
         if not response.ok:
-            raise BitcoinApiError(f'API request failed: {response.status_code} - {response.reason}')
+            raise CoinDeskApiError(f'API request failed: {response.status_code} - {response.reason}')
 
         return self._parse_price_data(response.json())
-
-    @classmethod
-    def _parse_price_data(cls, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Parses raw API response into structured price data.
-
-        Args:
-            data: Raw API response data
-
-        Returns:
-            Dictionary containing formatted price and time information
-
-        Raises:
-            BitcoinApiError: If required data is missing
-        """
-        try:
-            btc_data = data[cls.KEY_DATA][cls.KEY_BTC_USD]
-            timestamp = btc_data[cls.KEY_TIMESTAMP]
-
-            return {
-                'price_str': f'${btc_data[cls.KEY_VALUE]:,.2f}',
-                'datetime_from_ts': datetime.fromtimestamp(timestamp),
-                'pretty_est_time': cls._convert_to_est_time(timestamp).ctime()
-            }
-        except KeyError as e:
-            raise BitcoinApiError(f"Missing required data field: {e}")
 
     @classmethod
     def _convert_to_est_time(cls, timestamp: float) -> datetime:
@@ -146,6 +123,14 @@ class BitcoinPriceTicker:
         return datetime.fromtimestamp(timestamp).astimezone(
             timezone(timedelta(hours=cls.EST_TIMEZONE_OFFSET))
         )
+
+    @classmethod
+    def get_currency_data(cls, data: Dict[str, Any], instrument_key=None) -> tuple:
+        if instrument_key is None:
+            instrument_key = cls.INSTRUMENT_KEY
+        instrument_data = data[cls.KEY_DATA][instrument_key]
+        timestamp = instrument_data[cls.KEY_TIMESTAMP]
+        return instrument_data, timestamp
 
     def _continuous_check_process(self):
         """
@@ -201,6 +186,44 @@ class BitcoinPriceTicker:
             # print()
             # input("Press Enter to check again or Ctrl+C to exit...")
             # print()
+    @classmethod
+    def _parse_price_data(cls, data: Dict[str, Any], instrument_key=None) -> Dict[str, Any]:
+        """
+        Parses raw API response into structured price data.
+
+        Args:
+            data: Raw API response data
+
+        Returns:
+            Dictionary containing formatted price and time information
+
+        Raises:
+            CoinDeskApiError: If required data is missing
+        """
+        if instrument_key is None:
+            instrument_key = cls.INSTRUMENT_KEY
+        try:
+            btc_data, timestamp = cls.get_currency_data(data, instrument_key)
+            return {
+                'price_str': f'${btc_data[cls.KEY_VALUE]:,.2f}',
+                'datetime_from_ts': datetime.fromtimestamp(timestamp),
+                'pretty_est_time': cls._convert_to_est_time(timestamp).ctime()
+            }
+        except KeyError as e:
+            raise CoinDeskApiError(f"Missing required data field: {e}")
+
+
+class BitcoinPriceTicker(BasePriceTicker):
+    """A class to retrieve and process Bitcoin price data from CoinDesk API."""
+    BasePriceTicker.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_BTC_USD})
+    INSTRUMENT_KEY = BasePriceTicker.KEY_BTC_USD
+
+    def __init__(self, params: Dict[str, str] = None, base_url: str = None) -> None:
+        super().__init__(params, base_url)
+        self.currency_shorthand = BasePriceTicker.KEY_BTC_USD.split('-')[0]
+
+    def __str__(self):
+        return f'Bitcoin Price Ticker v{__version__}'
 
 
 if __name__ == '__main__':
