@@ -10,9 +10,12 @@ from datetime import datetime, timezone, timedelta
 from requests import get as r_get
 from _version import __version__
 
+
 class CoinDeskApiError(Exception):
     """Custom exception for Bitcoin API related errors"""
     pass
+
+
 # TODO: multi price ticker class
 # TODO: color for each currency (gold btc, purple for eth)
 #  - override formatted_price with return colorizer(super.formatted_price)
