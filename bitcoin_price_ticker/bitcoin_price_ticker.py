@@ -44,7 +44,7 @@ class BitcoinPriceTicker:
             params: Optional API request parameters
             base_url: Optional base URL for the API
         """
-        print(f"Initializing {self}")
+        print(f"{'-'* 10} Initializing {self} {'-'* 10}")
         self.params = params or BitcoinPriceTicker.DEFAULT_PARAMS
         self.url = base_url or f"{BitcoinPriceTicker.BASE_URL}{BitcoinPriceTicker.ENDPOINT}"
 
