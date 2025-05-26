@@ -13,7 +13,8 @@ from _version import __version__
 class CoinDeskApiError(Exception):
     """Custom exception for Bitcoin API related errors"""
     pass
-
+# TODO: multi price ticker class
+# TODO: color for each currency (gold btc, purple for eth)
 class BasePriceTicker:
     BASE_URL: str = 'https://data-api.coindesk.com'
     ENDPOINT: str = '/index/cc/v1/latest/tick'
