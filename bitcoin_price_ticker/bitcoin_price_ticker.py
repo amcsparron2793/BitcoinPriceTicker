@@ -13,7 +13,9 @@ from _version import __version__
 class CoinDeskApiError(Exception):
     """Custom exception for Bitcoin API related errors"""
     pass
-
+# TODO: multi price ticker class
+# TODO: color for each currency (gold btc, purple for eth)
+#  - override formatted_price with return colorizer(super.formatted_price)
 class BasePriceTicker:
     BASE_URL: str = 'https://data-api.coindesk.com'
     ENDPOINT: str = '/index/cc/v1/latest/tick'
@@ -98,7 +100,6 @@ class BasePriceTicker:
         """Returns a formatted string of the current Bitcoin price."""
         price_info = self.fetch_current_price()
         return f"As of {price_info['pretty_est_time']} EST:\n\t1 {self.currency_shorthand} = {price_info['price_str']}"
-
 
     @classmethod
     def get_continuous_check_interval(cls) -> str:
