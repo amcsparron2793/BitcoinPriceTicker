@@ -34,6 +34,10 @@ class BitcoinPriceTicker:
         "apply_mapping": "true",
         "groups": "VALUE"
     }
+    REQUIRED_PARAMS = [
+        "market",
+        "instruments"
+    ]
     CONTINUOUS_CHECK_INTERVAL_SECONDS: int = 120
 
     def __init__(self, params: Dict[str, str] = None, base_url: str = None) -> None:
@@ -45,11 +49,28 @@ class BitcoinPriceTicker:
             base_url: Optional base URL for the API
         """
         print(f"{'-'* 10} Initializing {self} {'-'* 10}")
+        self._params = None
         self.params = params or BitcoinPriceTicker.DEFAULT_PARAMS
         self.url = base_url or f"{BitcoinPriceTicker.BASE_URL}{BitcoinPriceTicker.ENDPOINT}"
 
     def __str__(self):
         return f'Bitcoin Price Ticker v{__version__}'
+
+    @property
+    def params(self):
+        return self._params
+
+    @params.setter
+    def params(self, value: dict[str, str]) -> None:
+        if not isinstance(value, dict):
+            raise TypeError("Params must be a dictionary")
+            # Check if all required parameters are present in the dictionary keys
+        if not all(param in value.keys() for param in BitcoinPriceTicker.REQUIRED_PARAMS):
+            raise ValueError(
+            "Params must contain at least the following keys: "
+            f"{', '.join(BitcoinPriceTicker.REQUIRED_PARAMS)}"
+        )
+        self._params = value
 
     @staticmethod
     def _format_minutes_seconds() -> str:
