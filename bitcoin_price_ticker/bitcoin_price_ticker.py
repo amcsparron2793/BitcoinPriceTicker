@@ -1,7 +1,7 @@
 """
 BitcoinPriceTicker.py
 
-gets the current btc price from coindesk and parses the resulting json
+gets the current btc price from coindesk and parses the resulting JSON
 """
 
 
@@ -51,15 +51,30 @@ class BitcoinPriceTicker:
     def __str__(self):
         return f'Bitcoin Price Ticker v{__version__}'
 
+    @staticmethod
+    def _format_minutes_seconds() -> str:
+        """
+        Formats a duration given in seconds to a string representing the duration
+        in minutes and seconds.
+
+        Returns a human-readable string representation of the duration, where the
+        format varies based on whether the duration has a non-zero value for
+        seconds. This method assumes the duration is derived from the
+        CONTINUOUS_CHECK_INTERVAL_SECONDS constant.
+
+        Returns:
+            str: Formatted duration in minutes and seconds.
+        """
+        minutes, seconds = divmod(BitcoinPriceTicker.CONTINUOUS_CHECK_INTERVAL_SECONDS, 60)
+        if seconds > 0:
+            return f"{minutes} minutes and {seconds} seconds"
+        return f"{minutes} minutes"
+
     @classmethod
     def get_continuous_check_interval(cls) -> str:
         """Returns a human-readable string of the check interval."""
         if cls.CONTINUOUS_CHECK_INTERVAL_SECONDS > 60:
-            minutes, seconds = divmod(cls.CONTINUOUS_CHECK_INTERVAL_SECONDS, 60)
-            if seconds > 0:
-                return f"{minutes} minutes and {seconds} seconds"
-            else:
-                return f"{minutes} minutes"
+            return cls._format_minutes_seconds()
         else:
             return f"{cls.CONTINUOUS_CHECK_INTERVAL_SECONDS} seconds"
 
