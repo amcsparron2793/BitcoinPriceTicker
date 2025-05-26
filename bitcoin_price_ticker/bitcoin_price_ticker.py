@@ -5,7 +5,7 @@ gets the current btc price from coindesk and parses the resulting json
 """
 
 
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
 from requests import get as r_get
 
@@ -34,6 +34,7 @@ class BitcoinPriceTicker:
         "apply_mapping": "true",
         "groups": "VALUE"
     }
+    CONTINUOUS_CHECK_INTERVAL_SECONDS: int = 120
 
     def __init__(self, params: Dict[str, str] = None, base_url: str = None) -> None:
         """
@@ -94,9 +95,62 @@ class BitcoinPriceTicker:
             timezone(timedelta(hours=cls.EST_TIMEZONE_OFFSET))
         )
 
+    def _continuous_check_process(self):
+        """
+        Performs a continuous check process.
+
+        This method executes a continuous checking process by printing the formatted price
+        attribute of the instance. The method is primarily designed for internal use and can
+        be part of background operations.
+
+        """
+        print(self.formatted_price)
+
+    @staticmethod
+    def should_update_continuous(last_update: Optional[datetime]) -> bool:
+        """Check if enough time has passed since the last update."""
+        check_interval = BitcoinPriceTicker.CONTINUOUS_CHECK_INTERVAL_SECONDS
+        if last_update is None:
+            return True
+        return datetime.now() - last_update >= timedelta(seconds=check_interval)
+
+    def continuous_check(self) -> None:
+        """
+        Performs a continuous check process in a loop, updating and re-evaluating based on
+        specific conditions, until interrupted by the user.
+
+        Attributes:
+            last_checked (Optional[datetime]): Stores the last checked datetime. Initialized
+            to None.
+
+        Methods:
+            This method does not contain individual methods.
+
+        Raises:
+            This method does not raise any specific exception internally, but captures the
+            KeyboardInterrupt to terminate the loop gracefully.
+
+        """
+        last_checked: Optional[datetime] = None
+        while True:
+            try:
+                if not self.should_update_continuous(last_checked):
+                    continue
+                self._continuous_check_process()
+                last_checked = datetime.now()
+            except KeyboardInterrupt:
+                print("Exiting...")
+                break
+
+            #print(f"As of {price_info['pretty_est_time']} EST:\n\t1 BTC = {price_info['price_str']}")
+            # print()
+            # input("Press Enter to check again or Ctrl+C to exit...")
+            # print()
+
 
 if __name__ == '__main__':
     btc_ticker = BitcoinPriceTicker()
-    print(btc_ticker.formatted_price)
+    btc_ticker.continuous_check()
+    #print(btc_ticker.formatted_price)
     #info = btc_ticker.get_current_info()
     #print(f"As of {info['pretty_est_time']} EST:\n\t1 BTC = {info['price_str']}")
