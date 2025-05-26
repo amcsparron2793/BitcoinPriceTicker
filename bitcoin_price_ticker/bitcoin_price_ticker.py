@@ -55,7 +55,11 @@ class BitcoinPriceTicker:
     def get_continuous_check_interval(cls) -> str:
         """Returns a human-readable string of the check interval."""
         if cls.CONTINUOUS_CHECK_INTERVAL_SECONDS > 60:
-            return f"{cls.CONTINUOUS_CHECK_INTERVAL_SECONDS // 60} minutes"
+            minutes, seconds = divmod(cls.CONTINUOUS_CHECK_INTERVAL_SECONDS, 60)
+            if seconds > 0:
+                return f"{minutes} minutes and {seconds} seconds"
+            else:
+                return f"{minutes} minutes"
         else:
             return f"{cls.CONTINUOUS_CHECK_INTERVAL_SECONDS} seconds"
 
