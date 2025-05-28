@@ -19,6 +19,7 @@ class CoinDeskApiError(Exception):
 # TODO: multi price ticker class
 # TODO: color for each currency (gold btc, purple for eth)
 #  - override formatted_price with return colorizer(super.formatted_price)
+
 class BasePriceTicker:
     BASE_URL: str = 'https://data-api.coindesk.com'
     ENDPOINT: str = '/index/cc/v1/latest/tick'
@@ -190,6 +191,7 @@ class BasePriceTicker:
             # print()
             # input("Press Enter to check again or Ctrl+C to exit...")
             # print()
+
     @classmethod
     def _parse_price_data(cls, data: Dict[str, Any], instrument_key=None) -> Dict[str, Any]:
         """
@@ -219,10 +221,10 @@ class BasePriceTicker:
 
 class BitcoinPriceTicker(BasePriceTicker):
     """A class to retrieve and process Bitcoin price data from CoinDesk API."""
-    BasePriceTicker.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_BTC_USD})
     INSTRUMENT_KEY = BasePriceTicker.KEY_BTC_USD
 
     def __init__(self, params: Dict[str, str] = None, base_url: str = None) -> None:
+        self.__class__.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_BTC_USD})
         super().__init__(params, base_url)
         self.currency_shorthand = BasePriceTicker.KEY_BTC_USD.split('-')[0]
 
@@ -232,10 +234,10 @@ class BitcoinPriceTicker(BasePriceTicker):
 
 class EthereumPriceTicker(BasePriceTicker):
     """A class to retrieve and process Ethereum price data from CoinDesk API."""
-    BasePriceTicker.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_ETH_USD})
     INSTRUMENT_KEY = BasePriceTicker.KEY_ETH_USD
 
     def __init__(self, params: Dict[str, str] = None, base_url: str = None) -> None:
+        self.__class__.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_ETH_USD})
         super().__init__(params, base_url)
         self.currency_shorthand = BasePriceTicker.KEY_ETH_USD.split('-')[0]
 
