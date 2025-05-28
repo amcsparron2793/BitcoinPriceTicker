@@ -5,3 +5,4 @@ pyproject_hooks==1.1.0
 setuptools==75.1.0
 
 requests~=2.32.3
+ColorizerAJM~=0.3.1

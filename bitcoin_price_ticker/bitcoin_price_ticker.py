@@ -9,6 +9,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
 from requests import get as r_get
 from _version import __version__
+from ColorizerAJM import Colorizer
 
 
 class CoinDeskApiError(Exception):
@@ -17,8 +18,10 @@ class CoinDeskApiError(Exception):
 
 
 # TODO: multi price ticker class
-# TODO: color for each currency (gold btc, purple for eth)
-#  - override formatted_price with return colorizer(super.formatted_price)
+
+# TODO: add a use colorizer option to BasePriceTicker class
+#  and then use that to change formatted_price
+
 
 class BasePriceTicker:
     BASE_URL: str = 'https://data-api.coindesk.com'
@@ -63,9 +66,23 @@ class BasePriceTicker:
         self.params = params or BasePriceTicker.DEFAULT_PARAMS
         self.url = base_url or f"{BasePriceTicker.BASE_URL}{BasePriceTicker.ENDPOINT}"
         self.currency_shorthand = None
+        self.colorizer = Colorizer()
 
     def __str__(self):
         return f'{self.__class__.__name__} v{__version__}'
+
+    @classmethod
+    def get_color(cls):
+        if cls.INSTRUMENT_KEY == cls.KEY_BTC_USD:
+            return 'YELLOW'
+        elif cls.INSTRUMENT_KEY == cls.KEY_ETH_USD:
+            return 'CYAN'
+        elif cls.INSTRUMENT_KEY == cls.KEY_LTC_USD:
+            return 'SILVER'
+        elif cls.INSTRUMENT_KEY == cls.KEY_XRP_USD:
+            return 'RED'
+        else:
+            return 'WHITE'
 
     @property
     def params(self):
@@ -231,6 +248,10 @@ class BitcoinPriceTicker(BasePriceTicker):
         super().__init__(params, base_url)
         self.currency_shorthand = BasePriceTicker.KEY_BTC_USD.split('-')[0]
 
+    @property
+    def formatted_price(self) -> str:
+        return self.colorizer.colorize(text=super().formatted_price, color=self.__class__.get_color())
+
 
 class EthereumPriceTicker(BasePriceTicker):
     """A class to retrieve and process Ethereum price data from CoinDesk API."""
@@ -240,6 +261,10 @@ class EthereumPriceTicker(BasePriceTicker):
         self.__class__.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_ETH_USD})
         super().__init__(params, base_url)
         self.currency_shorthand = BasePriceTicker.KEY_ETH_USD.split('-')[0]
+
+    @property
+    def formatted_price(self) -> str:
+        return self.colorizer.colorize(text=super().formatted_price, color=self.__class__.get_color())
 
 
 class LitecoinPriceTicker(BasePriceTicker):
@@ -252,9 +277,9 @@ class LitecoinPriceTicker(BasePriceTicker):
 
 
 if __name__ == '__main__':
-    # btc_ticker = BitcoinPriceTicker()
-    # btc_ticker.continuous_check()
-    # eth_ticker = EthereumPriceTicker()
-    # eth_ticker.continuous_check()
-    ltc_ticker = LitecoinPriceTicker()
-    ltc_ticker.continuous_check()
+    btc_ticker = BitcoinPriceTicker()
+    #btc_ticker.continuous_check()
+    eth_ticker = EthereumPriceTicker()
+    eth_ticker.continuous_check()
+    #ltc_ticker = LitecoinPriceTicker()
+    #ltc_ticker.continuous_check()
