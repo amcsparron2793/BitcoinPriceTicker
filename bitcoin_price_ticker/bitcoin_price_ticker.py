@@ -64,6 +64,9 @@ class BasePriceTicker:
         self.url = base_url or f"{BasePriceTicker.BASE_URL}{BasePriceTicker.ENDPOINT}"
         self.currency_shorthand = None
 
+    def __str__(self):
+        return f'{self.__class__.__name__} v{__version__}'
+
     @property
     def params(self):
         return self._params
@@ -228,9 +231,6 @@ class BitcoinPriceTicker(BasePriceTicker):
         super().__init__(params, base_url)
         self.currency_shorthand = BasePriceTicker.KEY_BTC_USD.split('-')[0]
 
-    def __str__(self):
-        return f'Bitcoin Price Ticker v{__version__}'
-
 
 class EthereumPriceTicker(BasePriceTicker):
     """A class to retrieve and process Ethereum price data from CoinDesk API."""
@@ -241,12 +241,20 @@ class EthereumPriceTicker(BasePriceTicker):
         super().__init__(params, base_url)
         self.currency_shorthand = BasePriceTicker.KEY_ETH_USD.split('-')[0]
 
-    def __str__(self):
-        return f'Ethereum Price Ticker v{__version__}'
+
+class LitecoinPriceTicker(BasePriceTicker):
+    """A class to retrieve and process Litecoin price data from CoinDesk API."""
+    INSTRUMENT_KEY = BasePriceTicker.KEY_LTC_USD
+    def __init__(self, params: Dict[str, str] = None, base_url: str = None) -> None:
+        self.__class__.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_LTC_USD})
+        super().__init__(params, base_url)
+        self.currency_shorthand = BasePriceTicker.KEY_LTC_USD.split('-')[0]
 
 
 if __name__ == '__main__':
-    #btc_ticker = BitcoinPriceTicker()
-    #btc_ticker.continuous_check()
-    eth_ticker = EthereumPriceTicker()
-    eth_ticker.continuous_check()
+    # btc_ticker = BitcoinPriceTicker()
+    # btc_ticker.continuous_check()
+    # eth_ticker = EthereumPriceTicker()
+    # eth_ticker.continuous_check()
+    ltc_ticker = LitecoinPriceTicker()
+    ltc_ticker.continuous_check()
