@@ -281,10 +281,22 @@ class LitecoinPriceTicker(BasePriceTicker):
         self.currency_shorthand = BasePriceTicker.KEY_LTC_USD.split('-')[0]
 
 
+class RipplePriceTicker(BasePriceTicker):
+    """A class to retrieve and process Ripple price data from CoinDesk API."""
+    INSTRUMENT_KEY = BasePriceTicker.KEY_XRP_USD
+    def __init__(self, params: Dict[str, str] = None, base_url: str = None, **kwargs) -> None:
+        self.__class__.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_XRP_USD})
+        super().__init__(params, base_url, **kwargs)
+        self.currency_shorthand = BasePriceTicker.KEY_XRP_USD.split('-')[0]
+
+
 if __name__ == '__main__':
-    btc_ticker = BitcoinPriceTicker()
-    btc_ticker.continuous_check()
-    #eth_ticker = EthereumPriceTicker()
-    #eth_ticker.continuous_check()
+    ...
+    # btc_ticker = BitcoinPriceTicker()
+    # btc_ticker.continuous_check()
+    # eth_ticker = EthereumPriceTicker()
+    # eth_ticker.continuous_check()
     # ltc_ticker = LitecoinPriceTicker()
     # ltc_ticker.continuous_check()
+    # xrp_ticker = RipplePriceTicker()
+    # xrp_ticker.continuous_check()
