@@ -12,15 +12,17 @@ from _version import __version__
 from ColorizerAJM import Colorizer
 
 
+class CryptoColorizer(Colorizer):
+    def __init__(self):
+        super().__init__(custom_colors={'PURPLE': 97, 'GOLD': 184, 'GRAY': 244})
+
+
 class CoinDeskApiError(Exception):
     """Custom exception for Bitcoin API related errors"""
     pass
 
 
 # TODO: multi price ticker class
-
-# TODO: add a use colorizer option to BasePriceTicker class
-#  and then use that to change formatted_price
 
 
 class BasePriceTicker:
@@ -53,7 +55,7 @@ class BasePriceTicker:
 
     CONTINUOUS_CHECK_INTERVAL_SECONDS: int = 120
 
-    def __init__(self, params: Dict[str, str] = None, base_url: str = None) -> None:
+    def __init__(self, params: Dict[str, str] = None, base_url: str = None, **kwargs) -> None:
         """
         Initialize the Bitcoin Price Ticker.
 
@@ -66,7 +68,8 @@ class BasePriceTicker:
         self.params = params or BasePriceTicker.DEFAULT_PARAMS
         self.url = base_url or f"{BasePriceTicker.BASE_URL}{BasePriceTicker.ENDPOINT}"
         self.currency_shorthand = None
-        self.colorizer = Colorizer()
+        self._colorizer = None
+        self.use_colorizer = kwargs.get('use_colorizer', True)
 
     def __str__(self):
         return f'{self.__class__.__name__} v{__version__}'
@@ -74,15 +77,22 @@ class BasePriceTicker:
     @classmethod
     def get_color(cls):
         if cls.INSTRUMENT_KEY == cls.KEY_BTC_USD:
-            return 'YELLOW'
+            return 'GOLD'
         elif cls.INSTRUMENT_KEY == cls.KEY_ETH_USD:
-            return 'CYAN'
+            return 'PURPLE'
         elif cls.INSTRUMENT_KEY == cls.KEY_LTC_USD:
-            return 'SILVER'
+            return 'GRAY'
         elif cls.INSTRUMENT_KEY == cls.KEY_XRP_USD:
             return 'RED'
         else:
             return 'WHITE'
+
+    @property
+    def colorizer(self):
+        if not self._colorizer:
+            if self.use_colorizer:
+                self._colorizer = CryptoColorizer()
+        return self._colorizer
 
     @property
     def params(self):
@@ -123,7 +133,10 @@ class BasePriceTicker:
     def formatted_price(self) -> str:
         """Returns a formatted string of the current Bitcoin price."""
         price_info = self.fetch_current_price()
-        return f"As of {price_info['pretty_est_time']} EST:\n\t1 {self.currency_shorthand} = {price_info['price_str']}"
+        formatted_string = f"As of {price_info['pretty_est_time']} EST:\n\t1 {self.currency_shorthand} = {price_info['price_str']}"
+        if self.use_colorizer:
+            formatted_string = self.colorizer.colorize(text=formatted_string, color=self.__class__.get_color())
+        return formatted_string
 
     @classmethod
     def get_continuous_check_interval(cls) -> str:
@@ -243,43 +256,35 @@ class BitcoinPriceTicker(BasePriceTicker):
     """A class to retrieve and process Bitcoin price data from CoinDesk API."""
     INSTRUMENT_KEY = BasePriceTicker.KEY_BTC_USD
 
-    def __init__(self, params: Dict[str, str] = None, base_url: str = None) -> None:
+    def __init__(self, params: Dict[str, str] = None, base_url: str = None, **kwargs) -> None:
         self.__class__.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_BTC_USD})
-        super().__init__(params, base_url)
+        super().__init__(params, base_url, **kwargs)
         self.currency_shorthand = BasePriceTicker.KEY_BTC_USD.split('-')[0]
-
-    @property
-    def formatted_price(self) -> str:
-        return self.colorizer.colorize(text=super().formatted_price, color=self.__class__.get_color())
 
 
 class EthereumPriceTicker(BasePriceTicker):
     """A class to retrieve and process Ethereum price data from CoinDesk API."""
     INSTRUMENT_KEY = BasePriceTicker.KEY_ETH_USD
 
-    def __init__(self, params: Dict[str, str] = None, base_url: str = None) -> None:
+    def __init__(self, params: Dict[str, str] = None, base_url: str = None, **kwargs) -> None:
         self.__class__.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_ETH_USD})
-        super().__init__(params, base_url)
+        super().__init__(params, base_url, **kwargs)
         self.currency_shorthand = BasePriceTicker.KEY_ETH_USD.split('-')[0]
-
-    @property
-    def formatted_price(self) -> str:
-        return self.colorizer.colorize(text=super().formatted_price, color=self.__class__.get_color())
 
 
 class LitecoinPriceTicker(BasePriceTicker):
     """A class to retrieve and process Litecoin price data from CoinDesk API."""
     INSTRUMENT_KEY = BasePriceTicker.KEY_LTC_USD
-    def __init__(self, params: Dict[str, str] = None, base_url: str = None) -> None:
+    def __init__(self, params: Dict[str, str] = None, base_url: str = None, **kwargs) -> None:
         self.__class__.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_LTC_USD})
-        super().__init__(params, base_url)
+        super().__init__(params, base_url, **kwargs)
         self.currency_shorthand = BasePriceTicker.KEY_LTC_USD.split('-')[0]
 
 
 if __name__ == '__main__':
     btc_ticker = BitcoinPriceTicker()
-    #btc_ticker.continuous_check()
-    eth_ticker = EthereumPriceTicker()
-    eth_ticker.continuous_check()
-    #ltc_ticker = LitecoinPriceTicker()
-    #ltc_ticker.continuous_check()
+    btc_ticker.continuous_check()
+    #eth_ticker = EthereumPriceTicker()
+    #eth_ticker.continuous_check()
+    # ltc_ticker = LitecoinPriceTicker()
+    # ltc_ticker.continuous_check()
