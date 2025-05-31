@@ -4,8 +4,8 @@ from bitcoin_price_ticker import (BasePriceTicker, BitcoinPriceTicker,
                                   EthereumPriceTicker, LitecoinPriceTicker,
                                   RipplePriceTicker)
 
-from err import UnsupportedCryptoError
-from helpers import CryptoType
+from bitcoin_price_ticker.err import UnsupportedCryptoError
+from bitcoin_price_ticker.helpers import CryptoType
 
 
 class TickerFactory:

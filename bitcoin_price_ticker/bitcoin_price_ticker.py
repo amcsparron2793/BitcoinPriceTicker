@@ -8,10 +8,10 @@ gets the current btc price from coindesk and parses the resulting JSON
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
 from requests import get as r_get
-from _version import __version__
+from bitcoin_price_ticker._version import __version__
 
-from err import CoinDeskApiError
-from helpers import CryptoColorizer
+from bitcoin_price_ticker.err import CoinDeskApiError
+from bitcoin_price_ticker.helpers import CryptoColorizer
 
 
 # TODO: multi price ticker class
@@ -124,7 +124,7 @@ class BasePriceTicker:
     @property
     def formatted_price(self) -> str:
         """Returns a formatted string of the current Bitcoin price."""
-        price_info = self.fetch_current_price()
+        price_info = self._parse_price_data(self.fetch_current_price())
         formatted_string = f"As of {price_info['pretty_est_time']} EST:\n\t1 {self.currency_shorthand} = {price_info['price_str']}"
         if self.use_colorizer:
             formatted_string = self.colorizer.colorize(text=formatted_string, color=self.__class__.get_color())
@@ -145,7 +145,7 @@ class BasePriceTicker:
         if not response.ok:
             raise CoinDeskApiError(f'API request failed: {response.status_code} - {response.reason}')
 
-        return self._parse_price_data(response.json())
+        return response.json()
 
     @classmethod
     def _convert_to_est_time(cls, timestamp: float) -> datetime:
