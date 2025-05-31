@@ -31,26 +31,10 @@ class MultiTicker(BasePriceTicker):
         self.currency_shorthand = "MULTI"  # Identifier for multi-currency ticker
 
     def _continuous_check_process(self):
-        """Override base class method to show all cryptocurrency prices."""
-        for crypto in self.crypto_types:
-            price_info = self._parse_price_data(
-                self.fetch_current_price(),
-                instrument_key=crypto.instrument_key
-            )
-            formatted_string = (
-                f"As of {price_info['pretty_est_time']} EST:\n"
-                f"\t1 {crypto.value} = {price_info['price_str']}"
-            )
-
-            if self.use_colorizer:
-                color = self.get_color_for_crypto(crypto)
-                formatted_string = self.colorizer.colorize(
-                    text=formatted_string,
-                    color=color
-                )
-            print(formatted_string)
-
+        """Override the base class method to show all cryptocurrency prices."""
+        print(self.formatted_price)
         print('-'* 50)
+
     @staticmethod
     def get_color_for_crypto(crypto: CryptoType) -> str:
         """Get the display color for a specific cryptocurrency."""
@@ -64,25 +48,30 @@ class MultiTicker(BasePriceTicker):
 
     @property
     def formatted_price(self) -> str:
-        """Returns formatted string of current prices for all cryptocurrencies."""
+        """Returns a formatted string of current prices for all cryptocurrencies."""
         price_data = self.fetch_current_price()
         result = []
+        not_first_line = False
 
         for crypto in self.crypto_types:
-            parsed_data = self._parse_price_data(
-                price_data,
-                instrument_key=crypto.instrument_key
-            )
-            line = (
-                f"1 {crypto.value} = {parsed_data['price_str']} "
-                f"({parsed_data['pretty_est_time']} EST)"
-            )
+            parsed_data = self._parse_price_data(price_data,
+                instrument_key=crypto.instrument_key)
+
+            if not_first_line:
+                line = f"1 {crypto.value} = {parsed_data['price_str']}"
+            else:
+                line = (f"As of {parsed_data['pretty_est_time']} EST:\n"
+                    f"1 {crypto.value} = {parsed_data['price_str']} ")
+
             if self.use_colorizer:
                 line = self.colorizer.colorize(
                     text=line,
                     color=self.get_color_for_crypto(crypto)
                 )
+
             result.append(line)
+
+            not_first_line = True
 
         return "\n".join(result)
 
