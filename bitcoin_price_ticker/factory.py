@@ -15,7 +15,8 @@ class TickerFactory:
         CryptoType.LITECOIN: LitecoinPriceTicker,
         CryptoType.XRP: RipplePriceTicker,
     }
-    SUPPORTED_CRYPTO_TYPES = [str(crypto) for crypto in TICKER_MAP.keys() if isinstance(crypto, CryptoType)]
+    SUPPORTED_CRYPTO_TYPES = [crypto for crypto in TICKER_MAP.keys() if isinstance(crypto, CryptoType)]
+    STRING_SUPPORTED_CRYPTO_TYPES = [str(x) for x in SUPPORTED_CRYPTO_TYPES]
 
     def __init__(self):
         self._ticker_instances = {}
@@ -29,7 +30,7 @@ class TickerFactory:
     def _get_ticker_class(cls, crypto_type: CryptoType) -> Type[BasePriceTicker]:
         """Maps CryptoType to the corresponding Ticker class"""
         if crypto_type not in cls.TICKER_MAP:
-            raise UnsupportedCryptoError(crypto_type, cls.SUPPORTED_CRYPTO_TYPES)
+            raise UnsupportedCryptoError(crypto_type, cls.STRING_SUPPORTED_CRYPTO_TYPES)
         return cls.TICKER_MAP[crypto_type]
 
     def create_ticker(self, crypto_type: CryptoType,
