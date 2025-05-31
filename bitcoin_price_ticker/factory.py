@@ -1,10 +1,19 @@
 from typing import Dict, Type, Optional
 
-from bitcoin_price_ticker import BasePriceTicker, BitcoinPriceTicker, EthereumPriceTicker, LitecoinPriceTicker, \
-    RipplePriceTicker
+from bitcoin_price_ticker import (BasePriceTicker, BitcoinPriceTicker,
+                                  EthereumPriceTicker, LitecoinPriceTicker,
+                                  RipplePriceTicker)
 
-from enum import Enum, auto
+from enum import Enum
 
+class UnsupportedCryptoError(Exception):
+    def __init__(self, crypto_type: 'CryptoType', supported_types: list[str]):
+        self.crypto_type = crypto_type
+        self.supported_types = supported_types
+        self.supported_types_string = ", ".join(self.supported_types)
+        self.message = (f"Unsupported cryptocurrency: {self.crypto_type} "
+                        f"Supported types: {self.supported_types_string}")
+        super().__init__(self.message)
 
 class CryptoType(Enum):
     BITCOIN = "BTC"
@@ -31,30 +40,29 @@ class CryptoType(Enum):
 
 
 class TickerFactory:
+    TICKER_MAP = {
+        CryptoType.BITCOIN: BitcoinPriceTicker,
+        CryptoType.ETHEREUM: EthereumPriceTicker,
+        CryptoType.LITECOIN: LitecoinPriceTicker,
+        CryptoType.XRP: RipplePriceTicker,
+    }
+    SUPPORTED_CRYPTO_TYPES = [str(crypto) for crypto in TICKER_MAP.keys() if isinstance(crypto, CryptoType)]
+
     def __init__(self):
         self._ticker_instances = {}
 
     @classmethod
     def _get_ticker_class(cls, crypto_type: CryptoType) -> Type[BasePriceTicker]:
         """Maps CryptoType to the corresponding Ticker class"""
-        ticker_map = {
-            CryptoType.BITCOIN: BitcoinPriceTicker,
-            CryptoType.ETHEREUM: EthereumPriceTicker,
-            CryptoType.LITECOIN: LitecoinPriceTicker,
-            CryptoType.XRP: RipplePriceTicker,
-        }
-
-        if crypto_type not in ticker_map:
-            supported = ", ".join(str(crypto) for crypto in ticker_map.keys())
-            raise ValueError(f"Unsupported cryptocurrency: {crypto_type}. "
-                             f"Supported types: {supported}")
-        return ticker_map[crypto_type]
+        if crypto_type not in cls.TICKER_MAP:
+            raise UnsupportedCryptoError(crypto_type, cls.SUPPORTED_CRYPTO_TYPES)
+        return cls.TICKER_MAP[crypto_type]
 
     def create_ticker(self, crypto_type: CryptoType,
                       params: Optional[Dict[str, str]] = None,
                       force_new: bool = False) -> BasePriceTicker:
         """
-        Creates or returns existing ticker instance
+        Creates or returns an existing ticker instance
 
         Args:
             crypto_type: Type of cryptocurrency
