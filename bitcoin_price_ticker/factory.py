@@ -21,6 +21,11 @@ class TickerFactory:
         self._ticker_instances = {}
 
     @classmethod
+    def get_supported_cryptos(cls) -> list[CryptoType]:
+        """Returns list of supported cryptocurrencies"""
+        return list(CryptoType)
+
+    @classmethod
     def _get_ticker_class(cls, crypto_type: CryptoType) -> Type[BasePriceTicker]:
         """Maps CryptoType to the corresponding Ticker class"""
         if crypto_type not in cls.TICKER_MAP:
@@ -49,14 +54,16 @@ class TickerFactory:
             }
         return ticker_class(params=params)
 
-    @classmethod
-    def get_supported_cryptos(cls) -> list[CryptoType]:
-        """Returns list of supported cryptocurrencies"""
-        return list(CryptoType)
+    def print_all_crypto_formatted_price(self):
+        all_cryptos = self.__class__.get_supported_cryptos()
+        for crypto in all_cryptos:
+            ticker = self.create_ticker(crypto)
+            print(ticker.formatted_price)
 
 if __name__ == '__main__':
     # Create factory
     factory = TickerFactory()
+    # factory.print_all_crypto_formatted_price()
 
     # TODO: Create tickers using enum
     # btc_ticker = factory.create_ticker(CryptoType.BITCOIN)
@@ -65,10 +72,6 @@ if __name__ == '__main__':
     # xrp_ticker = factory.create_ticker(CryptoType.XRP)
 
     # TODO: Create multi-ticker for all supported cryptocurrencies
-    all_cryptos = TickerFactory.get_supported_cryptos()
-    for crypto in all_cryptos:
-        ticker = factory.create_ticker(crypto)
-        print(ticker.formatted_price)
 
     # TODO:  Create from string input (useful for command line arguments)
     # try:
