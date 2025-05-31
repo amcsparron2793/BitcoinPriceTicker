@@ -60,6 +60,16 @@ class TickerFactory:
             ticker = self.create_ticker(crypto)
             print(ticker.formatted_price)
 
+    def ticker_from_string_input(self, ticker_name):
+        try:
+            crypto_type = CryptoType.from_string(ticker_name)#user_input)
+            ticker = self.create_ticker(crypto_type)
+        except ValueError as e:
+            print(f"Error: {e}")
+            return e
+        return ticker
+
+
 if __name__ == '__main__':
     # Create factory
     factory = TickerFactory()

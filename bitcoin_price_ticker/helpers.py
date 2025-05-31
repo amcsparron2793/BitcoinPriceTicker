@@ -1,5 +1,7 @@
 from ColorizerAJM import Colorizer
 from enum import Enum
+from err import UnsupportedCryptoError
+
 
 class CryptoType(Enum):
     BITCOIN = "BTC"
@@ -21,8 +23,7 @@ class CryptoType(Enum):
         try:
             return cls[value.upper()]
         except KeyError:
-            raise ValueError(f"Unknown cryptocurrency: {value}. "
-                             f"Valid options are: {', '.join(crypto.name for crypto in cls)}")
+            raise UnsupportedCryptoError(value, [crypto.name for crypto in cls])
 
 
 class CryptoColorizer(Colorizer):
