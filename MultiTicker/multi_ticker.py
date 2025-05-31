@@ -46,6 +46,42 @@ class MultiTicker(BasePriceTicker):
         }
         return color_map.get(crypto, "WHITE")
 
+    def _format_price_line(self, price_data, crypto: CryptoType,
+                           not_first_line: bool = False):
+        """
+        Formats a line containing price information for a specific cryptocurrency.
+
+        The method uses provided price data and cryptocurrency information to format and
+        optionally colorize a string representing the price of the cryptocurrency. It generates
+        a formatted string either as an initial line with a timestamp or as a subsequent line
+        without a timestamp.
+
+        Arguments:
+            price_data: The raw price data dictionary from which formatted price information
+                is extracted.
+            crypto: The cryptocurrency for which the price line is being formatted.
+            not_first_line: Determines whether the line being formatted is the first line
+                (which includes a timestamp) or a subsequent line.
+
+        Returns:
+            A string representing the formatted cryptocurrency price information.
+        """
+        parsed_data = self._parse_price_data(price_data,
+                                             instrument_key=crypto.instrument_key)
+
+        if not_first_line:
+            line = f"1 {crypto.value} = {parsed_data['price_str']}"
+        else:
+            line = (f"As of {parsed_data['pretty_est_time']} EST:\n"
+                    f"1 {crypto.value} = {parsed_data['price_str']} ")
+
+        if self.use_colorizer:
+            line = self.colorizer.colorize(
+                text=line,
+                color=self.get_color_for_crypto(crypto)
+            )
+        return line
+
     @property
     def formatted_price(self) -> str:
         """Returns a formatted string of current prices for all cryptocurrencies."""
@@ -54,22 +90,8 @@ class MultiTicker(BasePriceTicker):
         not_first_line = False
 
         for crypto in self.crypto_types:
-            parsed_data = self._parse_price_data(price_data,
-                instrument_key=crypto.instrument_key)
-
-            if not_first_line:
-                line = f"1 {crypto.value} = {parsed_data['price_str']}"
-            else:
-                line = (f"As of {parsed_data['pretty_est_time']} EST:\n"
-                    f"1 {crypto.value} = {parsed_data['price_str']} ")
-
-            if self.use_colorizer:
-                line = self.colorizer.colorize(
-                    text=line,
-                    color=self.get_color_for_crypto(crypto)
-                )
-
-            result.append(line)
+            formatted_line = self._format_price_line(price_data, crypto, not_first_line)
+            result.append(formatted_line)
 
             not_first_line = True
 
