@@ -26,5 +26,8 @@ class CryptoType(Enum):
 
 
 class CryptoColorizer(Colorizer):
-    def __init__(self):
-        super().__init__(custom_colors={'PURPLE': 97, 'GOLD': 184, 'GRAY': 244})
+    DEFAULT_COLOR_CODES = {'PURPLE': 97, 'GOLD': 184, 'GRAY': 244}
+    def __init__(self,  **kwargs):
+        custom_colors = kwargs.get('custom_colors', {})
+        self.crypto_custom_colors = {**custom_colors, **self.__class__.DEFAULT_COLOR_CODES}
+        super().__init__(custom_colors=self.crypto_custom_colors)

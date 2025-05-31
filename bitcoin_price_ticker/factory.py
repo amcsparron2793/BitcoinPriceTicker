@@ -63,7 +63,7 @@ class TickerFactory:
 if __name__ == '__main__':
     # Create factory
     factory = TickerFactory()
-    # factory.print_all_crypto_formatted_price()
+    factory.print_all_crypto_formatted_price()
 
     # TODO: Create tickers using enum
     # btc_ticker = factory.create_ticker(CryptoType.BITCOIN)
