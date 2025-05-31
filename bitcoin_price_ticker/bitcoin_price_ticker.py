@@ -291,7 +291,9 @@ class RipplePriceTicker(BasePriceTicker):
 
 
 if __name__ == '__main__':
-    ...
+
+    BasePriceTicker.CONTINUOUS_CHECK_INTERVAL_SECONDS = 10
+
     # btc_ticker = BitcoinPriceTicker()
     # btc_ticker.continuous_check()
     # eth_ticker = EthereumPriceTicker()
