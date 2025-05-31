@@ -9,17 +9,9 @@ from typing import Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
 from requests import get as r_get
 from _version import __version__
-from ColorizerAJM import Colorizer
 
-
-class CryptoColorizer(Colorizer):
-    def __init__(self):
-        super().__init__(custom_colors={'PURPLE': 97, 'GOLD': 184, 'GRAY': 244})
-
-
-class CoinDeskApiError(Exception):
-    """Custom exception for Bitcoin API related errors"""
-    pass
+from err import CoinDeskApiError
+from helpers import CryptoColorizer
 
 
 # TODO: multi price ticker class
