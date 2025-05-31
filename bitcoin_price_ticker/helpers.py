@@ -12,6 +12,16 @@ class CryptoType(Enum):
     def __str__(self):
         return self.value
 
+    def get_color_for_crypto(self) -> str:
+        """Get the display color for a specific cryptocurrency."""
+        color_map = {
+            CryptoType.BITCOIN: "GOLD",
+            CryptoType.ETHEREUM: "PURPLE",
+            CryptoType.LITECOIN: "GRAY",
+            CryptoType.XRP: "RED"
+        }
+        return color_map.get(self, "WHITE")
+
     @property
     def instrument_key(self) -> str:
         """Returns the instrument key used in the API"""

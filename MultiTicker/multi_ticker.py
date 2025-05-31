@@ -50,17 +50,6 @@ class MultiTicker(BasePriceTicker):
         print(self.formatted_price)
         print('-'* 50)
 
-    @staticmethod
-    def get_color_for_crypto(crypto: CryptoType) -> str:
-        """Get the display color for a specific cryptocurrency."""
-        color_map = {
-            CryptoType.BITCOIN: "GOLD",
-            CryptoType.ETHEREUM: "PURPLE",
-            CryptoType.LITECOIN: "GRAY",
-            CryptoType.XRP: "RED"
-        }
-        return color_map.get(crypto, "WHITE")
-
     def _format_price_line(self, price_data, crypto: CryptoType,
                            not_first_line: bool = False):
         """
@@ -93,7 +82,7 @@ class MultiTicker(BasePriceTicker):
         if self.use_colorizer:
             line = self.colorizer.colorize(
                 text=line,
-                color=self.get_color_for_crypto(crypto)
+                color=crypto.get_color_for_crypto()
             )
         return line
 
