@@ -27,7 +27,7 @@ class TickerFactory:
         return list(CryptoType)
 
     @classmethod
-    def _get_ticker_class(cls, crypto_type: CryptoType) -> Type[BasePriceTicker]:
+    def get_ticker_class(cls, crypto_type: CryptoType) -> Type[BasePriceTicker]:
         """Maps CryptoType to the corresponding Ticker class"""
         if crypto_type not in cls.TICKER_MAP:
             raise UnsupportedCryptoError(crypto_type, cls.STRING_SUPPORTED_CRYPTO_TYPES)
@@ -47,7 +47,7 @@ class TickerFactory:
         if not force_new and crypto_type in self._ticker_instances:
             return self._ticker_instances[crypto_type]
 
-        ticker_class = self._get_ticker_class(crypto_type)
+        ticker_class = self.get_ticker_class(crypto_type)
         if params is None:
             params = {
                 "market": "cadli",  # Adding the required market parameter
