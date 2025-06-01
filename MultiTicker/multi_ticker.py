@@ -79,10 +79,13 @@ class MultiTicker(BasePriceTicker):
 
 
         if not_first_line:
-            line = f"1 {crypto.value} = {parsed_data['price_str']} ({price_change})"
+            line = f"1 {crypto.value} = {parsed_data['price_str']} {price_change}"
         else:
             line = (f"As of {parsed_data['pretty_est_time']} EST:\n"
-                    f"1 {crypto.value} = {parsed_data['price_str']} ({price_change})")
+                    f"1 {crypto.value} = {parsed_data['price_str']} {price_change}")
+
+        # TODO: fix this?
+        # self._old_price = line.split('\n')[-1].split('=')[1].strip().split()[0].split('$')[1]
 
         if self.use_colorizer:
             line = self.colorizer.colorize(

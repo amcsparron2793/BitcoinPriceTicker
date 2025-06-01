@@ -128,7 +128,6 @@ class BasePriceTicker:
         else:
             current_float = float(current_price_info['price_str'].replace('$', '').replace(',', ''))
             old_float = float(self._old_price.replace('$', '').replace(',', ''))
-            print(f"CURRENT: {current_float} | OLD: {old_float}")
 
         final_string = round((current_float - old_float), 2)
         if final_string > 0:
