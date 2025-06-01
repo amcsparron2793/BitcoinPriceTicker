@@ -107,6 +107,7 @@ class BasePriceTicker:
     @property
     def formatted_price(self) -> str:
         """Returns a formatted string of the current Bitcoin price."""
+        # TODO: save old price info for change detection
         price_info = self._parse_price_data(self.fetch_current_price())
         formatted_string = f"As of {price_info['pretty_est_time']} EST:\n\t1 {self.currency_shorthand} = {price_info['price_str']}"
         if self.use_colorizer:
@@ -218,9 +219,9 @@ class BasePriceTicker:
         if instrument_key is None:
             instrument_key = cls.INSTRUMENT_KEY
         try:
-            btc_data, timestamp = cls.get_currency_data(data, instrument_key)
+            coin_data, timestamp = cls.get_currency_data(data, instrument_key)
             return {
-                'price_str': f'${btc_data[cls.KEY_VALUE]:,.2f}',
+                'price_str': f'${coin_data[cls.KEY_VALUE]:,.2f}',
                 'datetime_from_ts': datetime.fromtimestamp(timestamp),
                 'pretty_est_time': cls._convert_to_est_time(timestamp).ctime()
             }
