@@ -50,5 +50,5 @@ class Ticker:
 
 if __name__ == '__main__':
     tk_factory = TickerFactory()
-    mt = Ticker(mode='factory', factory=tk_factory, crypto_type='bitcoin')
+    mt = Ticker(mode='multi')#, factory=tk_factory, crypto_type='bitcoin')
     mt.run()

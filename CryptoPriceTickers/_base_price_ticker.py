@@ -110,8 +110,6 @@ class BasePriceTicker:
         """Returns a formatted string of the current Bitcoin price."""
         price_info = self._parse_price_data(self.fetch_current_price())
 
-        # FIXME: this is in the wrong place - _old_price needs to be calculated BEFORE new price
-        #self._old_price = price_info['price_str']
         price_change = self._calculate_price_change(price_info)
 
         formatted_string = (f"As of {price_info['pretty_est_time']} EST:"
@@ -119,6 +117,8 @@ class BasePriceTicker:
         if self.use_colorizer:
             str_color = CryptoType.from_string(self.__class__.get_crypto_name_string()).get_color_for_crypto()
             formatted_string = self.colorizer.colorize(text=formatted_string, color=str_color)
+
+        self._old_price = price_info['price_str']
         return formatted_string
 
     def _calculate_price_change(self, current_price_info):
@@ -130,8 +130,8 @@ class BasePriceTicker:
             old_float = float(self._old_price.replace('$', '').replace(',', ''))
             print(f"CURRENT: {current_float} | OLD: {old_float}")
 
-        final_string = (current_float - old_float)
-        if final_string < 0:
+        final_string = round((current_float - old_float), 2)
+        if final_string > 0:
             final_string = f'+{final_string}'
         return final_string
 

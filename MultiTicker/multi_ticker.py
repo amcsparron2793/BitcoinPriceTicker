@@ -72,12 +72,16 @@ class MultiTicker(BasePriceTicker):
         """
         parsed_data = self._parse_price_data(price_data,
                                              instrument_key=crypto.instrument_key)
+        price_change = self._calculate_price_change(parsed_data)
+        # FIXME: where to set old price per crypto?
+        print(f"CURRENT: {parsed_data['price_str']} | OLD: {self.tickers[crypto]._old_price}")
+
 
         if not_first_line:
-            line = f"1 {crypto.value} = {parsed_data['price_str']}"
+            line = f"1 {crypto.value} = {parsed_data['price_str']} ({price_change})"
         else:
             line = (f"As of {parsed_data['pretty_est_time']} EST:\n"
-                    f"1 {crypto.value} = {parsed_data['price_str']} ")
+                    f"1 {crypto.value} = {parsed_data['price_str']} ({price_change})")
 
         if self.use_colorizer:
             line = self.colorizer.colorize(
@@ -88,7 +92,7 @@ class MultiTicker(BasePriceTicker):
 
     @property
     def formatted_price(self) -> str:
-        """Returns formatted string of current prices for all cryptocurrencies."""
+        """Returns a formatted string of current prices for all cryptocurrencies."""
         price_data = self.fetch_current_price()
         result = []
         not_first_line = False
