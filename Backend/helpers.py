@@ -1,6 +1,6 @@
 from ColorizerAJM import Colorizer
 from enum import Enum
-from bitcoin_price_ticker.err import UnsupportedCryptoError
+from Backend.err import UnsupportedCryptoError
 
 
 class CryptoType(Enum):

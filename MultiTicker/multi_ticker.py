@@ -1,8 +1,8 @@
 from typing import Dict, List, Optional
-from bitcoin_price_ticker import BasePriceTicker
-from bitcoin_price_ticker.helpers import CryptoType
+from CryptoPriceTickers import BasePriceTicker
+from Backend.helpers import CryptoType
 
-from bitcoin_price_ticker.factory import TickerFactory
+from Backend.factory import TickerFactory
 
 
 class MultiTicker(BasePriceTicker):

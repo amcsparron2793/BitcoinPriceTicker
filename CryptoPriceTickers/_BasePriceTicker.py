@@ -1,20 +1,10 @@
-"""
-BitcoinPriceTicker.py
-
-gets the current btc price from coindesk and parses the resulting JSON
-"""
-
-
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
 from requests import get as r_get
-from bitcoin_price_ticker._version import __version__
+from CryptoPriceTickers._version import __version__
 
-from bitcoin_price_ticker.err import CoinDeskApiError
-from bitcoin_price_ticker.helpers import CryptoColorizer
-
-
-# TODO: multi price ticker class
+from Backend.err import CoinDeskApiError
+from Backend.helpers import CryptoColorizer
 
 
 class BasePriceTicker:
@@ -102,8 +92,8 @@ class BasePriceTicker:
         )
         self._params = value
 
-    @staticmethod
-    def _format_minutes_seconds() -> str:
+    @classmethod
+    def _format_minutes_seconds(cls) -> str:
         """
         Formats a duration given in seconds to a string representing the duration
         in minutes and seconds.
@@ -116,7 +106,7 @@ class BasePriceTicker:
         Returns:
             str: Formatted duration in minutes and seconds.
         """
-        minutes, seconds = divmod(BitcoinPriceTicker.CONTINUOUS_CHECK_INTERVAL_SECONDS, 60)
+        minutes, seconds = divmod(cls.CONTINUOUS_CHECK_INTERVAL_SECONDS, 60)
         if seconds > 0:
             return f"{minutes} minutes and {seconds} seconds"
         return f"{minutes} minutes"
@@ -173,10 +163,10 @@ class BasePriceTicker:
         """
         print(self.formatted_price)
 
-    @staticmethod
-    def should_update_continuous(last_update: Optional[datetime]) -> bool:
+    @classmethod
+    def should_update_continuous(cls, last_update: Optional[datetime]) -> bool:
         """Check if enough time has passed since the last update."""
-        check_interval = BitcoinPriceTicker.CONTINUOUS_CHECK_INTERVAL_SECONDS
+        check_interval = cls.CONTINUOUS_CHECK_INTERVAL_SECONDS
         if last_update is None:
             return True
         return datetime.now() - last_update >= timedelta(seconds=check_interval)
@@ -200,7 +190,7 @@ class BasePriceTicker:
         """
         last_checked: Optional[datetime] = None
         print(f"Starting continuous check every "
-              f"{BitcoinPriceTicker.get_continuous_check_interval()} "
+              f"{self.__class__.get_continuous_check_interval()} "
               f"press Ctrl+C to exit.")
         while True:
             try:
@@ -242,55 +232,3 @@ class BasePriceTicker:
             }
         except KeyError as e:
             raise CoinDeskApiError(f"Missing required data field: {e}")
-
-
-class BitcoinPriceTicker(BasePriceTicker):
-    """A class to retrieve and process Bitcoin price data from CoinDesk API."""
-    INSTRUMENT_KEY = BasePriceTicker.KEY_BTC_USD
-
-    def __init__(self, params: Dict[str, str] = None, base_url: str = None, **kwargs) -> None:
-        self.__class__.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_BTC_USD})
-        super().__init__(params, base_url, **kwargs)
-        self.currency_shorthand = BasePriceTicker.KEY_BTC_USD.split('-')[0]
-
-
-class EthereumPriceTicker(BasePriceTicker):
-    """A class to retrieve and process Ethereum price data from CoinDesk API."""
-    INSTRUMENT_KEY = BasePriceTicker.KEY_ETH_USD
-
-    def __init__(self, params: Dict[str, str] = None, base_url: str = None, **kwargs) -> None:
-        self.__class__.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_ETH_USD})
-        super().__init__(params, base_url, **kwargs)
-        self.currency_shorthand = BasePriceTicker.KEY_ETH_USD.split('-')[0]
-
-
-class LitecoinPriceTicker(BasePriceTicker):
-    """A class to retrieve and process Litecoin price data from CoinDesk API."""
-    INSTRUMENT_KEY = BasePriceTicker.KEY_LTC_USD
-    def __init__(self, params: Dict[str, str] = None, base_url: str = None, **kwargs) -> None:
-        self.__class__.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_LTC_USD})
-        super().__init__(params, base_url, **kwargs)
-        self.currency_shorthand = BasePriceTicker.KEY_LTC_USD.split('-')[0]
-
-
-class RipplePriceTicker(BasePriceTicker):
-    """A class to retrieve and process Ripple price data from CoinDesk API."""
-    INSTRUMENT_KEY = BasePriceTicker.KEY_XRP_USD
-    def __init__(self, params: Dict[str, str] = None, base_url: str = None, **kwargs) -> None:
-        self.__class__.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_XRP_USD})
-        super().__init__(params, base_url, **kwargs)
-        self.currency_shorthand = BasePriceTicker.KEY_XRP_USD.split('-')[0]
-
-
-if __name__ == '__main__':
-
-    BasePriceTicker.CONTINUOUS_CHECK_INTERVAL_SECONDS = 10
-
-    # btc_ticker = BitcoinPriceTicker()
-    # btc_ticker.continuous_check()
-    # eth_ticker = EthereumPriceTicker()
-    # eth_ticker.continuous_check()
-    # ltc_ticker = LitecoinPriceTicker()
-    # ltc_ticker.continuous_check()
-    # xrp_ticker = RipplePriceTicker()
-    # xrp_ticker.continuous_check()

@@ -1,11 +1,11 @@
 from typing import Dict, Type, Optional
 
-from bitcoin_price_ticker import (BasePriceTicker, BitcoinPriceTicker,
+from CryptoPriceTickers import (BasePriceTicker, BitcoinPriceTicker,
                                   EthereumPriceTicker, LitecoinPriceTicker,
                                   RipplePriceTicker)
 
-from bitcoin_price_ticker.err import UnsupportedCryptoError
-from bitcoin_price_ticker.helpers import CryptoType
+from Backend.err import UnsupportedCryptoError
+from Backend.helpers import CryptoType
 
 
 class TickerFactory:
