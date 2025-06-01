@@ -37,7 +37,7 @@ class BasePriceTicker:
 
     INSTRUMENT_KEY = None
 
-    CONTINUOUS_CHECK_INTERVAL_SECONDS: int = 120
+    CONTINUOUS_CHECK_INTERVAL_SECONDS: int = 5
 
     def __init__(self, params: Dict[str, str] = None, base_url: str = None, **kwargs) -> None:
         """
@@ -47,6 +47,7 @@ class BasePriceTicker:
             params: Optional API request parameters
             base_url: Optional base URL for the API
         """
+        self._old_price = None
         print(f"{'-'* 10} Initializing {self} {'-'* 10}")
         self._params = None
         self.params = params or BasePriceTicker.DEFAULT_PARAMS
@@ -107,13 +108,32 @@ class BasePriceTicker:
     @property
     def formatted_price(self) -> str:
         """Returns a formatted string of the current Bitcoin price."""
-        # TODO: save old price info for change detection
         price_info = self._parse_price_data(self.fetch_current_price())
-        formatted_string = f"As of {price_info['pretty_est_time']} EST:\n\t1 {self.currency_shorthand} = {price_info['price_str']}"
+
+        # FIXME: this is in the wrong place - _old_price needs to be calculated BEFORE new price
+        #self._old_price = price_info['price_str']
+        price_change = self._calculate_price_change(price_info)
+
+        formatted_string = (f"As of {price_info['pretty_est_time']} EST:"
+                            f"\n\t1 {self.currency_shorthand} = {price_info['price_str']} ({price_change})")
         if self.use_colorizer:
             str_color = CryptoType.from_string(self.__class__.get_crypto_name_string()).get_color_for_crypto()
             formatted_string = self.colorizer.colorize(text=formatted_string, color=str_color)
         return formatted_string
+
+    def _calculate_price_change(self, current_price_info):
+        """Calculates the change in price since the last check."""
+        if self._old_price is None:
+            return ''
+        else:
+            current_float = float(current_price_info['price_str'].replace('$', '').replace(',', ''))
+            old_float = float(self._old_price.replace('$', '').replace(',', ''))
+            print(f"CURRENT: {current_float} | OLD: {old_float}")
+
+        final_string = (current_float - old_float)
+        if final_string < 0:
+            final_string = f'+{final_string}'
+        return final_string
 
     @classmethod
     def get_continuous_check_interval(cls) -> str:
