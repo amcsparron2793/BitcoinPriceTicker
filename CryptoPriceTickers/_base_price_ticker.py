@@ -113,7 +113,7 @@ class BasePriceTicker:
         price_change = self._calculate_price_change(price_info)
 
         formatted_string = (f"As of {price_info['pretty_est_time']} EST:"
-                            f"\n\t1 {self.currency_shorthand} = {price_info['price_str']} ({price_change})")
+                            f"\n\t1 {self.currency_shorthand} = {price_info['price_str']} {price_change}")
         if self.use_colorizer:
             str_color = CryptoType.from_string(self.__class__.get_crypto_name_string()).get_color_for_crypto()
             formatted_string = self.colorizer.colorize(text=formatted_string, color=str_color)
@@ -133,6 +133,7 @@ class BasePriceTicker:
         final_string = round((current_float - old_float), 2)
         if final_string > 0:
             final_string = f'+{final_string}'
+        final_string = f'({final_string})' if final_string != '' else ''
         return final_string
 
     @classmethod
