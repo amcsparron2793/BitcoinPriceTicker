@@ -6,7 +6,7 @@ gets the current btc price from coindesk and parses the resulting JSON
 
 
 from typing import Dict
-from CryptoPriceTickers._BasePriceTicker import BasePriceTicker
+from CryptoPriceTickers._base_price_ticker import BasePriceTicker
 
 
 class BitcoinPriceTicker(BasePriceTicker):
