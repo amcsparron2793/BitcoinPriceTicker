@@ -1,2 +1,2 @@
 from CryptoPriceTickers._crypto_price_ticker import (BasePriceTicker, BitcoinPriceTicker, EthereumPriceTicker,
-                                                     LitecoinPriceTicker, RipplePriceTicker)
+                                                     LitecoinPriceTicker, RipplePriceTicker, DogePriceTicker)

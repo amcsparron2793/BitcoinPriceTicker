@@ -47,10 +47,16 @@ class RipplePriceTicker(BasePriceTicker):
         self.currency_shorthand = BasePriceTicker.KEY_XRP_USD.split('-')[0]
 
 
+class DogePriceTicker(BasePriceTicker):
+    INSTRUMENT_KEY = BasePriceTicker.KEY_DOGE_USD
+    def __init__(self, params: Dict[str, str] = None, base_url: str = None, **kwargs) -> None:
+        self.__class__.DEFAULT_PARAMS.update({"instruments": BasePriceTicker.KEY_DOGE_USD})
+        super().__init__(params, base_url, **kwargs)
+        self.currency_shorthand = BasePriceTicker.KEY_DOGE_USD.split('-')[0]
+
+
 if __name__ == '__main__':
-
     BasePriceTicker.CONTINUOUS_CHECK_INTERVAL_SECONDS = 10
-
     # btc_ticker = BitcoinPriceTicker()
     # btc_ticker.continuous_check()
     # eth_ticker = EthereumPriceTicker()

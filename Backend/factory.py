@@ -2,7 +2,7 @@ from typing import Dict, Type, Optional
 
 from CryptoPriceTickers import (BasePriceTicker, BitcoinPriceTicker,
                                   EthereumPriceTicker, LitecoinPriceTicker,
-                                  RipplePriceTicker)
+                                  RipplePriceTicker, DogePriceTicker)
 
 from Backend.err import UnsupportedCryptoError
 from Backend.helpers import CryptoType
@@ -14,6 +14,7 @@ class TickerFactory:
         CryptoType.ETHEREUM: EthereumPriceTicker,
         CryptoType.LITECOIN: LitecoinPriceTicker,
         CryptoType.XRP: RipplePriceTicker,
+        CryptoType.DOGE: DogePriceTicker
     }
     SUPPORTED_CRYPTO_TYPES = [crypto for crypto in TICKER_MAP.keys() if isinstance(crypto, CryptoType)]
     STRING_SUPPORTED_CRYPTO_TYPES = [str(x) for x in SUPPORTED_CRYPTO_TYPES]

@@ -4,7 +4,7 @@ from requests import get as r_get
 from CryptoPriceTickers._version import __version__
 
 from Backend.err import CoinDeskApiError
-from Backend.helpers import CryptoColorizer
+from Backend.helpers import CryptoColorizer, CryptoType
 
 
 class BasePriceTicker:
@@ -18,6 +18,7 @@ class BasePriceTicker:
     KEY_ETH_USD: str = 'ETH-USD'
     KEY_LTC_USD: str = 'LTC-USD'
     KEY_XRP_USD: str = 'XRP-USD'
+    KEY_DOGE_USD: str = 'DOGE-USD'
 
     KEY_VALUE: str = 'VALUE'
     KEY_TIMESTAMP: str = 'VALUE_LAST_UPDATE_TS'
@@ -117,6 +118,8 @@ class BasePriceTicker:
         price_info = self._parse_price_data(self.fetch_current_price())
         formatted_string = f"As of {price_info['pretty_est_time']} EST:\n\t1 {self.currency_shorthand} = {price_info['price_str']}"
         if self.use_colorizer:
+            # TODO: use something like this to avoid having to have a separate get_color() method
+            #  CryptoType.get_color_for_crypto(CryptoType.from_string()
             formatted_string = self.colorizer.colorize(text=formatted_string, color=self.__class__.get_color())
         return formatted_string
 

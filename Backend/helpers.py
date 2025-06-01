@@ -8,6 +8,7 @@ class CryptoType(Enum):
     ETHEREUM = "ETH"
     LITECOIN = "LTC"
     XRP = "XRP"
+    DOGE = "DOGE"
 
     def __str__(self):
         return self.value
