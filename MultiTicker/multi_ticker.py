@@ -74,7 +74,8 @@ class MultiTicker(BasePriceTicker):
                                              instrument_key=crypto.instrument_key)
         price_change = self._calculate_price_change(parsed_data)
         # FIXME: where to set old price per crypto?
-        print(f"CURRENT: {parsed_data['price_str']} | OLD: {self.tickers[crypto]._old_price}")
+        #  set with something like this?
+        #  self._old_price = {crypto: parsed_data['price_str']}
 
 
         if not_first_line:
