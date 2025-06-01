@@ -1,3 +1,4 @@
+from re import findall
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
 from requests import get as r_get
@@ -58,17 +59,8 @@ class BasePriceTicker:
         return f'{self.__class__.__name__} v{__version__}'
 
     @classmethod
-    def get_color(cls):
-        if cls.INSTRUMENT_KEY == cls.KEY_BTC_USD:
-            return 'GOLD'
-        elif cls.INSTRUMENT_KEY == cls.KEY_ETH_USD:
-            return 'PURPLE'
-        elif cls.INSTRUMENT_KEY == cls.KEY_LTC_USD:
-            return 'GRAY'
-        elif cls.INSTRUMENT_KEY == cls.KEY_XRP_USD:
-            return 'RED'
-        else:
-            return 'WHITE'
+    def get_crypto_name_string(cls):
+        return findall('[A-Z][^A-Z]*', cls.__name__)[0].capitalize()
 
     @property
     def colorizer(self):
@@ -118,9 +110,8 @@ class BasePriceTicker:
         price_info = self._parse_price_data(self.fetch_current_price())
         formatted_string = f"As of {price_info['pretty_est_time']} EST:\n\t1 {self.currency_shorthand} = {price_info['price_str']}"
         if self.use_colorizer:
-            # TODO: use something like the below to avoid having to have a separate get_color() method
-            #  CryptoType.get_color_for_crypto(CryptoType.from_string()
-            formatted_string = self.colorizer.colorize(text=formatted_string, color=self.__class__.get_color())
+            str_color = CryptoType.from_string(self.__class__.get_crypto_name_string()).get_color_for_crypto()
+            formatted_string = self.colorizer.colorize(text=formatted_string, color=str_color)
         return formatted_string
 
     @classmethod

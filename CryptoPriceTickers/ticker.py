@@ -49,5 +49,5 @@ class Ticker:
 
 if __name__ == '__main__':
     tk_factory = TickerFactory()
-    mt = Ticker(mode='multi',factory=tk_factory)
+    mt = Ticker(mode='multi', factory=tk_factory)
     mt.run()
