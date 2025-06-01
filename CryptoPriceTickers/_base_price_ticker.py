@@ -118,7 +118,7 @@ class BasePriceTicker:
         price_info = self._parse_price_data(self.fetch_current_price())
         formatted_string = f"As of {price_info['pretty_est_time']} EST:\n\t1 {self.currency_shorthand} = {price_info['price_str']}"
         if self.use_colorizer:
-            # TODO: use something like this to avoid having to have a separate get_color() method
+            # TODO: use something like the below to avoid having to have a separate get_color() method
             #  CryptoType.get_color_for_crypto(CryptoType.from_string()
             formatted_string = self.colorizer.colorize(text=formatted_string, color=self.__class__.get_color())
         return formatted_string

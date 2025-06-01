@@ -77,13 +77,11 @@ if __name__ == '__main__':
     factory = TickerFactory()
     factory.print_all_crypto_formatted_price()
 
-    # TODO: Create tickers using enum
     # btc_ticker = factory.create_ticker(CryptoType.BITCOIN)
     # eth_ticker = factory.create_ticker(CryptoType.ETHEREUM)
     # ltc_ticker = factory.create_ticker(CryptoType.LITECOIN)
     # xrp_ticker = factory.create_ticker(CryptoType.XRP)
 
-    # TODO: Create multi-ticker for all supported cryptocurrencies
 
     # TODO:  Create from string input (useful for command line arguments)
     # try:
