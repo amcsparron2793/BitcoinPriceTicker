@@ -2,28 +2,7 @@ from typing import Optional
 
 from MultiTicker.multi_ticker import MultiTicker
 from Backend.factory import TickerFactory
-from Backend.helpers import CryptoType
-import argparse
-
-class TickerArgparse(argparse.ArgumentParser):
-    def __init__(self):
-        super().__init__()
-        self.add_argument('-m', '--mode',
-                          type=str, required=False,
-                          help='ticker mode', default='multi')
-        self.add_argument('-c', '--crypto_type',
-                          type=str, required=False,
-                          help='crypto type')
-        self.add_argument('-p', '--params',
-                          type=str, required=False,
-                          help='params')
-        self.add_argument('-u', '--base_url',
-                          type=str, required=False,
-                          help='base url')
-        self.add_argument('-uc', '--use_colorizer',
-                          action='store_true', required=False,
-                          default=True,
-                          help='enable colorizer')
+from Backend.helpers import CryptoType, TickerArgparse
 
 
 class Ticker:

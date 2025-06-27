@@ -1,7 +1,7 @@
 from ColorizerAJM import Colorizer
 from enum import Enum
 from Backend.err import UnsupportedCryptoError
-
+import argparse
 
 class CryptoType(Enum):
     BITCOIN = "BTC"
@@ -43,3 +43,24 @@ class CryptoColorizer(Colorizer):
         custom_colors = kwargs.get('custom_colors', {})
         self.crypto_custom_colors = {**custom_colors, **self.__class__.DEFAULT_COLOR_CODES}
         super().__init__(custom_colors=self.crypto_custom_colors)
+
+
+class TickerArgparse(argparse.ArgumentParser):
+    def __init__(self):
+        super().__init__()
+        self.add_argument('-m', '--mode',
+                          type=str, required=False,
+                          help='ticker mode', default='multi')
+        self.add_argument('-c', '--crypto_type',
+                          type=str, required=False,
+                          help='crypto type')
+        self.add_argument('-p', '--params',
+                          type=str, required=False,
+                          help='params')
+        self.add_argument('-u', '--base_url',
+                          type=str, required=False,
+                          help='base url')
+        self.add_argument('-uc', '--use_colorizer',
+                          action='store_true', required=False,
+                          default=True,
+                          help='enable colorizer')
