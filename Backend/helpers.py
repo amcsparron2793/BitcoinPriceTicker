@@ -31,10 +31,23 @@ class CryptoType(Enum):
     @classmethod
     def from_string(cls, value: str) -> "CryptoType":
         """Create enum from string, case-insensitive"""
+        upper_val = value.upper()
+        alternative_names = {
+            "BTC": cls.BITCOIN,
+            "ETH": cls.ETHEREUM,
+            "LTC": cls.LITECOIN,
+            "XRP": cls.XRP,
+            "DOGE": cls.DOGE
+        }
         try:
-            return cls[value.upper()]
+            return cls[upper_val]
         except KeyError:
-            raise UnsupportedCryptoError(value, [crypto.name for crypto in cls])
+            if upper_val in alternative_names:
+                return alternative_names[upper_val]
+            valid_cryptos = sorted(set([x for x in alternative_names]
+                                       + [crypto.name for crypto in cls]),
+                                   key=len)
+            raise UnsupportedCryptoError(value, valid_cryptos)
 
 
 class CryptoColorizer(Colorizer):
