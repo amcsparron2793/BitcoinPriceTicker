@@ -72,6 +72,7 @@ class MultiTicker(BasePriceTicker):
         """
         parsed_data = self._parse_price_data(price_data,
                                              instrument_key=crypto.instrument_key)
+        # print(parsed_data)
         price_change = self._calculate_price_change(parsed_data)
         # FIXME: where to set old price per crypto?
         #  set with something like this?

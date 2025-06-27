@@ -26,7 +26,10 @@ class Ticker:
 
     def _initialize_ticker(self):
         if self.mode == self.__class__.MULTI_MODE:
-            initialized_ticker = MultiTicker(self.factory, crypto_types=self.crypto_type, params=self.params, use_colorizer=self.use_colorizer)
+            initialized_ticker = MultiTicker(self.factory,
+                                             crypto_types=self.crypto_type,
+                                             params=self.params,
+                                             use_colorizer=self.use_colorizer)
         elif self.mode == self.__class__.FACTORY_MODE and self.crypto_type is not None:
             initialized_ticker = self.factory.create_ticker(self.crypto_type, self.params)
         else:
@@ -50,5 +53,6 @@ class Ticker:
 
 if __name__ == '__main__':
     tk_factory = TickerFactory()
-    mt = Ticker(mode='multi')#, factory=tk_factory, crypto_type='bitcoin')
+    # mt = Ticker(mode='multi')
+    mt = Ticker(mode='factory', factory=tk_factory, crypto_type='bitcoin')
     mt.run()
