@@ -1,3 +1,4 @@
+from pathlib import Path
 from re import findall
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
@@ -26,7 +27,8 @@ class BasePriceTicker:
 
     REQUIRED_PARAMS = [
         "market",
-        "instruments"
+        #"instruments",
+        "api_key"
     ]
     DEFAULT_PARAMS: Dict[str, str] = {
         "market": "cadli",
@@ -50,14 +52,21 @@ class BasePriceTicker:
         self._old_price = None
         print(f"{'-'* 10} Initializing {self} {'-'* 10}")
         self._params = None
-        self.params = params or BasePriceTicker.DEFAULT_PARAMS
-        self.url = base_url or f"{BasePriceTicker.BASE_URL}{BasePriceTicker.ENDPOINT}"
+        self.api_key_location = Path(kwargs.get('api_key_location', './api_key.key'))
+
+        # TODO: setup default params to also include API key.
+        self.params = params or self.__class__.DEFAULT_PARAMS
+        self.url = base_url or f"{self.__class__.BASE_URL}{self.__class__.ENDPOINT}"
         self.currency_shorthand = None
         self._colorizer = None
         self.use_colorizer = kwargs.get('use_colorizer', True)
 
     def __str__(self):
         return f'{self.__class__.__name__} v{__version__}'
+
+    def get_api_key(self):
+        with open(self.api_key_location, 'r') as f:
+            return f.read().strip()
 
     @classmethod
     def get_crypto_name_string(cls):
@@ -78,7 +87,9 @@ class BasePriceTicker:
     def params(self, value: dict[str, str]) -> None:
         if not isinstance(value, dict):
             raise TypeError("Params must be a dictionary")
-            # Check if all required parameters are present in the dictionary keys
+        # TODO: pretty this up
+        # Check if all required parameters are present in the dictionary keys
+        value.update({"api_key": self.get_api_key()})
         if not all(param in value.keys() for param in BasePriceTicker.REQUIRED_PARAMS):
             raise ValueError(
             "Params must contain at least the following keys: "
