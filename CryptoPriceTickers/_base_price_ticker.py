@@ -7,6 +7,7 @@ from CryptoPriceTickers._version import __version__
 
 from Backend.err import CoinDeskApiError
 from Backend.helpers import CryptoColorizer, CryptoType
+from Backend.api_key import ApiKey
 
 
 class BasePriceTicker:
@@ -52,9 +53,10 @@ class BasePriceTicker:
         self._old_price = None
         print(f"{'-'* 10} Initializing {self} {'-'* 10}")
         self._params = None
-        self.api_key_location = Path(kwargs.get('api_key_location', './api_key.key'))
+        self.api_key_class = ApiKey(**kwargs)
 
         # TODO: setup default params to also include API key.
+
         self.params = params or self.__class__.DEFAULT_PARAMS
         self.url = base_url or f"{self.__class__.BASE_URL}{self.__class__.ENDPOINT}"
         self.currency_shorthand = None
@@ -63,10 +65,6 @@ class BasePriceTicker:
 
     def __str__(self):
         return f'{self.__class__.__name__} v{__version__}'
-
-    def get_api_key(self):
-        with open(self.api_key_location, 'r') as f:
-            return f.read().strip()
 
     @classmethod
     def get_crypto_name_string(cls):
@@ -79,6 +77,11 @@ class BasePriceTicker:
                 self._colorizer = CryptoColorizer()
         return self._colorizer
 
+    def _insert_api_key_param(self, value: dict[str, str]) -> dict[str, str]:
+        if "api_key" not in value.keys():
+            value.update({"api_key": self.api_key_class.get_api_key()})
+        return value
+
     @property
     def params(self):
         return self._params
@@ -89,7 +92,8 @@ class BasePriceTicker:
             raise TypeError("Params must be a dictionary")
         # TODO: pretty this up
         # Check if all required parameters are present in the dictionary keys
-        value.update({"api_key": self.get_api_key()})
+        #value.update({"api_key": self.get_api_key()})
+        value = self._insert_api_key_param(value)
         if not all(param in value.keys() for param in BasePriceTicker.REQUIRED_PARAMS):
             raise ValueError(
             "Params must contain at least the following keys: "

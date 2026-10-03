@@ -11,3 +11,6 @@ class UnsupportedCryptoError(Exception):
 class CoinDeskApiError(Exception):
     """Custom exception for Bitcoin API related errors"""
     pass
+
+class NoAPIKeyError(Exception):
+    pass
